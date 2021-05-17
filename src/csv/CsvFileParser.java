@@ -12,11 +12,23 @@ import java.lang.reflect.*;
 public class CsvFileParser
 {
 	private final HashMap<Class<?>, Function<String, Object>> typeParserMap;
+	private final HashMap<String, Function<String, Object>> fieldNameParserMap;
 	
 	public CsvFileParser()
 	{
 		typeParserMap = new HashMap<>();
+		fieldNameParserMap = new HashMap<>();
 		initializeTypeParserMap();
+	}
+	
+	public void addFieldNameParser(String fieldName, Function<String, Object> parser)
+	{
+		if (fieldName == null || fieldName.length() == 0 || parser == null)
+		{
+			throw new IllegalArgumentException("Parameters cannot be null");
+		}
+		
+		fieldNameParserMap.put(fieldName, parser);
 	}
 	
 	public <T> List<T> parse(Class<T> type, String path)
@@ -57,7 +69,14 @@ public class CsvFileParser
 					String lineValueAsText = lineArgs[argumentIndex];
 					
 					Class<?> fieldType = field.getType();
-					Object fieldValue = typeParserMap.get(fieldType).apply(lineValueAsText);
+					Function<String, Object> parser = typeParserMap.get(fieldType);
+					
+					if (fieldNameParserMap.containsKey(fieldName))
+					{
+						parser = fieldNameParserMap.get(fieldName);
+					}
+					
+					Object fieldValue = parser.apply(lineValueAsText);
 					
 					field.set(object, fieldValue);
 				}

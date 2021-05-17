@@ -9,7 +9,7 @@ public class Main
 	public static void main(String[] args)
 	{
 		CsvFileParser csv = new CsvFileParser();
-		//csv.inject("old", x -> x.equals("old"));
+		csv.addFieldNameParser("status", x -> x.equals("old"));
 		List<Product> products = csv.parse(Product.class, "resources/products.csv");
 		products.stream().forEach(x -> System.out.println(x.name + " " + (x.price + 10) + " " + x.symbol + " " + x.old));
 	}
