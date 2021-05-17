@@ -11,6 +11,14 @@ import java.lang.reflect.*;
 
 public class CsvFileParser
 {
+	private final HashMap<Class<?>, Function<String, Object>> typeParserMap;
+	
+	public CsvFileParser()
+	{
+		typeParserMap = new HashMap<>();
+		initializeTypeParserMap();
+	}
+	
 	public <T> List<T> parse(Class<T> type, String path)
 	{
 		List<T> list = new ArrayList<T>();
@@ -28,13 +36,6 @@ public class CsvFileParser
 			}
 			
 			Field[] fields = type.getDeclaredFields();
-			
-			HashMap<Class<?>, Function<String, Object>> typeParserMap = new HashMap<>();
-			typeParserMap.put(double.class, Double::parseDouble);
-			typeParserMap.put(Double.class, Integer::parseInt);
-			typeParserMap.put(int.class, Integer::parseInt);
-			typeParserMap.put(Integer.class, Integer::parseInt);
-			typeParserMap.put(String.class, x -> x);
 			
 			for (String line : lines)
 			{
@@ -64,5 +65,34 @@ public class CsvFileParser
 		
 		
 		return list;
+	}
+	
+	private void initializeTypeParserMap()
+	{
+		typeParserMap.put(byte.class, Byte::parseByte);
+		typeParserMap.put(Byte.class, Byte::parseByte);
+		
+		typeParserMap.put(short.class, Short::parseShort);
+		typeParserMap.put(Short.class, Short::parseShort);
+		
+		typeParserMap.put(int.class, Integer::parseInt);
+		typeParserMap.put(Integer.class, Integer::parseInt);
+		
+		typeParserMap.put(long.class, Long::parseLong);
+		typeParserMap.put(Long.class, Long::parseLong);
+		
+		typeParserMap.put(double.class, Double::parseDouble);
+		typeParserMap.put(Double.class, Integer::parseInt);
+		
+		typeParserMap.put(float.class, Float::parseFloat);
+		typeParserMap.put(Float.class, Float::parseFloat);
+		
+		typeParserMap.put(boolean.class, Boolean::parseBoolean);
+		typeParserMap.put(Boolean.class, Boolean::parseBoolean);
+		
+		typeParserMap.put(char.class, x -> x.charAt(0));
+		typeParserMap.put(Character.class, x -> x.charAt(0));
+		
+		typeParserMap.put(String.class, x -> x);
 	}
 }
