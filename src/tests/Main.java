@@ -14,5 +14,7 @@ public class Main
 		List<Product> products = csv.parse(Product.class, "resources/products.csv", StandardCharsets.UTF_8);
 		products.stream().forEach(x -> System.out.println(x.name + " " + (x.price + 10) + " " + x.symbol + " " + x.old
 				+ " " + x.release));
+		
+		// TODO: Add custom type parser e.g. for Date
 	}
 }
