@@ -44,8 +44,15 @@ public class CsvFileParser
 				T object = constructor.newInstance(new Object[0]);
 				
 				for (Field field : fields)
-				{
+				{	
 					String fieldName = field.getName().toLowerCase();
+					CsvName csvName = field.getAnnotation(CsvName.class);
+					
+					if (csvName != null)
+					{
+						fieldName = csvName.value();
+					}
+					
 					int argumentIndex = nameIndexPairs.get(fieldName);
 					String lineValueAsText = lineArgs[argumentIndex];
 					
@@ -62,7 +69,6 @@ public class CsvFileParser
 		{
 			e.printStackTrace();
 		}
-		
 		
 		return list;
 	}
