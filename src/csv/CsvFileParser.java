@@ -1,24 +1,53 @@
 package csv;
 
-import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.function.Function;
 import java.lang.reflect.*;
 
 public class CsvFileParser
 {
+	private static final DateTimeFormat DEFAULT_DATE_TIME_FORMAT = DateTimeFormat.dd_MM_yyyy;
+	
 	private final HashMap<Class<?>, Function<String, Object>> typeParserMap;
 	private final HashMap<String, Function<String, Object>> fieldNameParserMap;
 	
+	private String dateTimeFormat;
+	
 	public CsvFileParser()
 	{
+		setDateTimeFormat(DEFAULT_DATE_TIME_FORMAT);
+		
 		typeParserMap = new HashMap<>();
-		fieldNameParserMap = new HashMap<>();
 		initializeTypeParserMap();
+		
+		fieldNameParserMap = new HashMap<>();
+	}
+	
+	public void setDateTimeFormat(DateTimeFormat dateTimeFormat)
+	{
+		setDateTimeFormat(dateTimeFormat.getValue());
+	}
+	
+	private void setDateTimeFormat(String dateTimeFormat)
+	{
+		if (dateTimeFormat == null || dateTimeFormat.length() == 0)
+		{
+			throw new IllegalArgumentException("Date format cannot be null or empty");
+		}
+		
+		this.dateTimeFormat = dateTimeFormat;
+	}
+	
+	public String getDateTimeFormat()
+	{
+		return dateTimeFormat;
 	}
 	
 	public void addFieldNameParser(String fieldName, Function<String, Object> parser)
@@ -74,8 +103,7 @@ public class CsvFileParser
 		return list;
 	}
 	
-	private <T> void setObjectField(T object, Field field, String[] lineArguments,
-								    HashMap<String, Integer> nameIndexPairs) throws Exception
+	private <T> void setObjectField(T object, Field field, String[] lineArguments, HashMap<String, Integer> nameIndexPairs) throws Exception
 	{
 		String fieldName = field.getName().toLowerCase();
 		CsvName csvName = field.getAnnotation(CsvName.class);
@@ -129,5 +157,21 @@ public class CsvFileParser
 		typeParserMap.put(Character.class, x -> x.charAt(0));
 		
 		typeParserMap.put(String.class, x -> x);
+		
+		typeParserMap.put(Date.class, x -> 
+		{
+			Date date = null;
+			
+			try
+			{
+				date = new SimpleDateFormat(getDateTimeFormat()).parse(x);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+			return date;
+		});
 	}
 }

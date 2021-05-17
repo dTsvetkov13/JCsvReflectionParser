@@ -1,5 +1,7 @@
 package tests;
 
+import java.util.Date;
+
 import csv.CsvName;
 
 public class Product
@@ -11,4 +13,5 @@ public class Product
 	
 	@CsvName("status")
 	public boolean old;
+	public Date release;
 }
